@@ -6,11 +6,20 @@ library(rpart)
 library(rpart.plot)
 library(dplyr)
 
+# funkcje ----
+char2num<-function(x){ 
+  groups = unique(x) 
+  as.numeric(factor(x, levels=groups)) 
+}
+
+
+
+
+
 
 analysis <- read.table(file = here("data", "TitanicCleaned.tsv"), sep = '\t', header = TRUE)
 analysis$Age <- ntile(analysis$Age, 4)
 analysis$Fare <- ntile(analysis$Fare, 4)
-
 
 
 
@@ -31,7 +40,8 @@ ui <- pageWithSidebar(
                           "Age",
                           "SibSp",
                           "Parch",
-                          "Fare"),
+                          "Fare",
+                          "Embarked"),
               selected = "Survived"),
   ),
   mainPanel(
@@ -80,6 +90,9 @@ server <- function(input, output, session) {
     })
   
   output$wykres <- renderPlot({
+    analysis$Sex <- char2num(analysis$Sex)
+    analysis$Embarked <- char2num(analysis$Embarked)
+    
     updateNumericInput(session, "kolumna", max = length(analysis))
     hist(analysis[[input$kolumna]], main = paste("Histogram of" , colnames(analysis[input$kolumna])), xlab="")
   })
